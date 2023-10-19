@@ -165,27 +165,27 @@ Module.register("MMM-Homeassistant", {
                 //Change icons based on HA status
                 if (value == "on" && typeof icons.state_on === "string") {
                     iconsinline = document.createElement("i");
-                    iconsinline.className = "fa fa-fw " + icons.state_on;
+                    iconsinline.className = "fa fa-" + icons.state_on;
                     newCell.appendChild(iconsinline);
                 } else if (value == "off" && typeof icons.state_off === "string") {
                     iconsinline = document.createElement("i");
-                    iconsinline.className = "fa fa-fw " + icons.state_off;
+                    iconsinline.className = "fa fa-" + icons.state_off;
                     newCell.appendChild(iconsinline);
                 } else if (value == "open" && typeof icons.state_open === "string") {
                 iconsinline = document.createElement("i");
-                iconsinline.className = "fa fa-fw " + icons.state_open;
+                iconsinline.className = "fa fa-" + icons.state_open;
                 newCell.appendChild(iconsinline);
                 } else if (
                 value == "closed" &&
                 typeof icons.state_closed === "string"
                 ) {
                 iconsinline = document.createElement("i");
-                iconsinline.className = "fa fa-fw " + icons.state_closed;
+                iconsinline.className = "fa fa-" + icons.state_closed;
                 newCell.appendChild(iconsinline);
                 } else {
                 if (typeof icons.default === "string") {
                     iconsinline = document.createElement("i");
-                    iconsinline.className = "fa fa-fw " + icons.default;
+                    iconsinline.className = "fa fa-" + icons.default;
                     newCell.appendChild(iconsinline);
                 }
                 }
