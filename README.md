@@ -1,6 +1,8 @@
 # MMM-Homeassistant
 
 ## Installation
+1. Navigate to your local `MagicMirror/modules` directory
+2. run `git clone https://github.com/eigger/MMM-Homeassistant.git`
 
 ## Configuration
 
