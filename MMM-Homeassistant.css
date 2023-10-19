@@ -1,0 +1,67 @@
+.blink {
+  animation: blinker 3.5s linear infinite;
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
+
+
+
+.MMM-Homeassistant header{
+  text-align: center;
+  border-bottom: none;
+  color: white;
+  padding-bottom: 0px;
+  margin-bottom: 0px;
+} 
+
+.MMM-Homeassistant table tr{
+  background-color: #252525;
+  border-radius: 3px;
+  border-left: 5px solid #3b99a3;
+  display: flex;
+  padding: 5px 5px;
+  margin-bottom: 7px;
+} 
+
+.MMM-Homeassistant table td{
+  text-align: left;
+  color: white;
+  /*border: solid #3b99a3;*/
+} 
+
+.MMM-Homeassistant table td.icon{
+  justify-content: space-between; 
+  flex: 0 1 auto;
+  text-align: left;
+  color: white;
+  /*border: solid #3b99a3;*/
+} 
+
+.MMM-Homeassistant table td.name{
+  justify-content: space-between; 
+  flex: 1 1 auto;
+  text-align: left;
+  color: white;
+  margin-left: 5px;
+  /*border: solid #3b99a3;*/
+} 
+
+.MMM-Homeassistant table td.value{
+  justify-content: space-between; 
+  flex: 0 1 auto;
+  text-align: right;
+  color: white;
+  /*border: solid #3b99a3;*/
+} 
+
+.MMM-Homeassistant table td.unit{
+  justify-content: space-between; 
+  flex: 0 1 auto;
+  text-align: right;
+  color: white;
+  /*border: solid #3b99a3;*/
+} 
