@@ -1,20 +1,17 @@
 "use strict";
 
 Module.register("MMM-Homeassistant", {
-    result: {},
+    responseArray: {}, 
     defaults: {
         prettyName: true,
         stripName: true,
         title: "Home Assistant",
-        host: "hassio.local",
-        port: "8321",
-        https: false,
+        url: "http://homeassistant.local:8123",
         token: "",
-        apipassword: "",
         updateInterval: 300000,
         displaySymbol: true,
         debuglogging: false,
-        values: []
+        entities: []
     },
 
     getStyles: function() {
@@ -24,7 +21,7 @@ Module.register("MMM-Homeassistant", {
     },
 
     start: function() {
-        this.getStats();
+        this.getStates();
         this.scheduleUpdate();
     },
 
@@ -38,196 +35,162 @@ Module.register("MMM-Homeassistant", {
     },
 
     getDom: function() {
-        var wrapper = document.createElement("ticker");
+        const wrapper = document.createElement("ticker");
         wrapper.className = "dimmed small";
-        var data = this.result;
-        var statElement = document.createElement("header");
-        var title = this.config.title;
-        statElement.innerHTML = title;
-        wrapper.appendChild(statElement);
 
-        if (data && !this.isEmpty(data)) {
-            var tableElement = document.createElement("table");
-            var values = this.config.values;
-            if (values.length > 0) {
-                for (var i = 0; i < values.length; i++) {
-                    var icons = values[i].icons[0];
-                    var sensor = values[i].sensor;
-                    var attributes = values[i].attributes;
-                    var val = this.getValue(data, sensor, attributes);
-                    var name = this.getName(data, values[i]);
-                    var unit = this.getUnit(data, sensor);
-                    var alertThreshold = values[i].alertThreshold;
-                    if (val) {
-                        tableElement.appendChild(
-                        this.addValue(name, val, unit, icons, alertThreshold)
-                        );
-                    }
-                }
-            } else {
-                for (var key in data) {
-                    if (data.hasOwnProperty(key)) {
-                        tableElement.appendChild(
-                        this.addValue(key, data[key], "", "", false)
-                        );
-                    }
-                }
-            }
-            wrapper.appendChild(tableElement);
-        } else {
-            var error = document.createElement("span");
-            error.innerHTML = "Error fetching stats.";
+        const dataArray = this.responseArray;
+        const statElement = document.createElement("header");
+        statElement.innerHTML = this.config.title;
+        wrapper.appendChild(statElement);
+    
+        if (dataArray === undefined || dataArray.length === 0) {
+            const error = document.createElement("span");
+            error.innerHTML = "Error fetching states.";
             wrapper.appendChild(error);
+            return wrapper;
         }
+
+        const tableElement = document.createElement("table");
+        for (const entity of this.config.entities) {
+            if (dataArray[entity.id] === undefined) continue;
+            const icons = entity.icons[0];
+            const value = this.getValue(dataArray[entity.id], entity);
+            const name = this.getName(dataArray[entity.id], entity);
+            const unit = this.getUnit(dataArray[entity.id], entity);
+            const alertThreshold = entity.alertThreshold;
+
+            if (value) {
+                tableElement.appendChild(
+                    this.addValue(name, value, unit, icons, alertThreshold)
+                );
+            }
+        }
+        wrapper.appendChild(tableElement);
         return wrapper;
     },
 
-    getValue: function(data, value, attributes=[]) {
-        for (var i = 0; i < data.length; i++) {
-            if (data[i].entity_id == value) {
-                if(attributes.length==0) {
-                    return data[i].state;
-                }
-                var returnString = ' | ';
-                for(var j=0; j<attributes.length; j++) {
-                    if(attributes[j] == 'state') {
-                        returnString += data[i].state + ' | ';
-                    } else {
-                        if(data[i]['attributes'][attributes[j]] !== undefined) {
-                        returnString += data[i]['attributes'][attributes[j]] + ' | ';
-                        }
-                    }
-                }
-                return returnString.slice(0, -3);
-            }
+    getValue: function(data, entity) {
+        const item = data;
+        if (entity.attributes === undefined) {
+            return item.state;
         }
-        return null;
+        const values = entity.attributes.map(attr => {
+            if (attr === 'state') {
+                return item.state;
+            }
+            return item.attributes[attr] !== undefined ? item.attributes[attr] : null;
+        }).filter(Boolean);
+        return values.join(' | ');
     },
 
-    getUnit: function(data, value) {
-        for (var i = 0; i < data.length; i++) {
-            if (data[i].entity_id == value) {
-                if (typeof data[i].attributes.unit_of_measurement !== "undefined") {
-                    return data[i].attributes.unit_of_measurement;
-                }
-                return "";
-            }
-        }
-        return "";
+    getUnit: function(data, entity) {
+        const item = data;
+        return item && item.attributes.unit_of_measurement ? item.attributes.unit_of_measurement : "";
     },
 
-    getName: function(data, value) {
-        //use the name from config if set
-        if (value.name && value.name !== "")
-            return value.name;
-
-        //find the sensor by entity_id and get it's friendly_name
-        for (var i = 0; i < data.length; i++) {
-            if (data[i].entity_id === value.sensor) {
-                return data[i].attributes.friendly_name;
-            }
+    getName: function(data, entity) {
+        if (entity.name && entity.name !== "") {
+            return entity.name;
         }
-        return null;
+        const item = data;
+        return item ? item.attributes.friendly_name : null;
     },
 
     addValue: function(name, value, unit, icons, alertThreshold) {
-        var newrow, newText, newCell;
-        newrow = document.createElement("tr");
-        if (!isNaN(alertThreshold)) {
-            console.log("alertThreshold is a number");
-            if (alertThreshold < value) {
-                console.log("Threshold exceeded - blink it");
-                newrow.className += "blink";
-            }
+        const newrow = document.createElement("tr");
+        if (!isNaN(alertThreshold) && alertThreshold < value) {
+            newrow.className += "blink";
         }
-
-        if (this.config.stripName) {
-            var split = name.split(".");
-            name = split[split.length - 1];
-        }
-
-        if (this.config.prettyName) {
-            name = name.replace(/([A-Z])/g, function($1) {
-                return "_" + $1.toLowerCase();
-            });
-            name = name.split("_").join(" ");
-            name = name.replace(/\w\S*/g, function(txt) {
-                return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-            });
-        }
-
+        name = this.processName(name);
+    
         // icons
-        newCell = newrow.insertCell(0);
-        newCell.className = "icon";
-        if (this.config.displaySymbol) {
-            if (typeof icons === "object") {
-                var iconsinline;
-                //Change icons based on HA status
-                if (value == "on" && typeof icons.state_on === "string") {
-                    iconsinline = document.createElement("i");
-                    iconsinline.className = "fa fa-" + icons.state_on;
-                    newCell.appendChild(iconsinline);
-                } else if (value == "off" && typeof icons.state_off === "string") {
-                    iconsinline = document.createElement("i");
-                    iconsinline.className = "fa fa-" + icons.state_off;
-                    newCell.appendChild(iconsinline);
-                } else if (value == "open" && typeof icons.state_open === "string") {
-                iconsinline = document.createElement("i");
-                iconsinline.className = "fa fa-" + icons.state_open;
-                newCell.appendChild(iconsinline);
-                } else if (
-                value == "closed" &&
-                typeof icons.state_closed === "string"
-                ) {
-                iconsinline = document.createElement("i");
-                iconsinline.className = "fa fa-" + icons.state_closed;
-                newCell.appendChild(iconsinline);
-                } else {
-                if (typeof icons.default === "string") {
-                    iconsinline = document.createElement("i");
-                    iconsinline.className = "fa fa-" + icons.default;
-                    newCell.appendChild(iconsinline);
-                }
-                }
-            }
-        }
+        const iconCell = newrow.insertCell(0);
+        iconCell.className = "icon";
+        this.setIconCell(iconCell, value, icons);
+    
         // Name
-        newCell = newrow.insertCell(1);
-        newCell.className = "name";
-        newText = document.createTextNode(name);
-        newCell.appendChild(newText);
+        const nameCell = newrow.insertCell(1);
+        nameCell.className = "name";
+        nameCell.appendChild(document.createTextNode(name));
+    
         // Value
-        newCell = newrow.insertCell(2);
-        newCell.className = "value";
-        newText = document.createTextNode(value);
-        newCell.appendChild(newText);
+        const valueCell = newrow.insertCell(2);
+        valueCell.className = "value";
+        valueCell.appendChild(document.createTextNode(value));
+    
         // Unit
-        newCell = newrow.insertCell(3);
-        newCell.className = "unit";
-        newText = document.createTextNode(unit);
-        newCell.appendChild(newText);
-
+        const unitCell = newrow.insertCell(3);
+        unitCell.className = "unit";
+        unitCell.appendChild(document.createTextNode(unit));
+    
         return newrow;
     },
 
-  scheduleUpdate: function(delay) {
-    var nextLoad = this.config.updateInterval;
-    if (typeof delay !== "undefined" && delay >= 0) {
-      nextLoad = delay;
+    processName: function(name) {
+        if (this.config.stripName) {
+            const split = name.split(".");
+            name = split[split.length - 1];
+        }
+    
+        if (this.config.prettyName) {
+            name = name
+                .replace(/([A-Z])/g, "_$1").toLowerCase()
+                .split("_").join(" ")
+                .replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+        }
+        
+        return name;
+    },
+
+    setIconCell: function(cell, value, icons) {
+        if (!this.config.displaySymbol || typeof icons !== "object") return;
+    
+        const iconStates = {
+            "on": "state_on",
+            "off": "state_off",
+            "open": "state_open",
+            "closed": "state_closed"
+        };
+    
+        let iconName = icons.default;
+        if (iconStates[value] && icons[iconStates[value]]) {
+            iconName = icons[iconStates[value]];
+        }
+    
+        if (iconName) {
+            const iconElement = document.createElement("i");
+            iconElement.className = "fa fa-" + iconName;
+            cell.appendChild(iconElement);
+        }
+    },
+
+    scheduleUpdate: function(delay) {
+        var nextLoad = this.config.updateInterval;
+        if (typeof delay !== "undefined" && delay >= 0) {
+            nextLoad = delay;
+        }
+        var self = this;
+        setInterval(function() {
+            self.getStates();
+        }, nextLoad);
+    },
+
+    getStates: function() {
+        this.sendSocketNotification("GET_STATES", this.config);
+    },
+
+    socketNotificationReceived: function(notification, payload) {
+        if (notification === "STATES_RESPONSE") {
+            if (payload.entity_id !== undefined)
+            {
+                this.responseArray[payload.entity_id] = payload;
+                var lastEntity = this.config.entities[this.config.entities.length - 1];
+                if (lastEntity.id == payload.entity_id)
+                {
+                    var fade = 500;
+                    this.updateDom(fade);
+                }
+            }
+        }
     }
-    var self = this;
-    setInterval(function() {
-      self.getStats();
-    }, nextLoad);
-  },
-  getStats: function() {
-    this.sendSocketNotification("GET_STATS", this.config);
-  },
-  socketNotificationReceived: function(notification, payload) {
-    if (notification === "STATS_RESULT") {
-      this.result = payload;
-      var fade = 500;
-      this.updateDom(fade);
-    }
-  }
 });

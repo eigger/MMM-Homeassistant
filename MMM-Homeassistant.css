@@ -34,9 +34,10 @@
 } 
 
 .MMM-Homeassistant table td.icon{
+  min-width: 20px;
   justify-content: space-between; 
   flex: 0 1 auto;
-  text-align: left;
+  text-align: center;
   color: white;
   /*border: solid #3b99a3;*/
 } 

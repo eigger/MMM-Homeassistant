@@ -19,17 +19,14 @@ It is very simple to set up this module, a sample configuration looks like this:
 | `port`           | port of homeassistant e.g. 443 for SSL. <br><br> **Default:** `8321`                                          |
 | `https`          | is SSL enabled on home assistant (true/false) <br><br> **Default:** `REQUIRED false`                          |
 | `token`          | The long lived token. <br><br> **Default:** `REQUIRED`                                                        |
-| `apipassword`    | Deprecated API password. <br><br> **Default:** ``                                                             |
 | `updateInterval` | The time between updates (In milliseconds). <br><br> **Default:** `300000 (5 minutes)`                        |
-| `selfsigned`     | allows self signed certificates/ less secure (true/false). <br><br> **Default:** `false`                      |
-| `debuglogging`   | Enable logging into /home/pi/.pm2/logs/mm-error.log (true/false). <br><br> **Default:** `false`               |
-| `values`         | Specify specific values from the json feed to only show what you need (entity_id).                            |
+| `entities`         | Specify specific values from the json feed to only show what you need (entity_id).                            |
 
 ## values option
 
 | Option           | Description                                                                                                                                                                                                 |
 | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sensor`         | `entity_id` from Home Assistant. Please have a look at the states pages for the unique `entity_id` of your sensor                                                                                           |
+| `id`         | `entity_id` from Home Assistant. Please have a look at the states pages for the unique `entity_id` of your id                                                                                           |
 | `name`           | The name of the value to display. If you omit this, `friendly_name` from Home Assistant will be displayed.                                                                                                  |
 | `alertThreshold` | As soon as the measured value of the sensor exceeds the configured threshold, the entry will begin to 'blink'. <br><br> **Default:** `off`                                                                  |
 | `attributes`     | Array of sensor attributes to show. If not set, only show sensor state. If set, you can add as many attributes as you want, if you want to show the state as well add `'state'`. <br><br> **Default:** `[]` |
@@ -59,15 +56,15 @@ modules: [{
 			prettyName: false,
 			stripName: false,
 			debuglogging: false,
-			values: [{
-					sensor: "sensor.processor_use",
+			entities: [{
+					id: "sensor.processor_use",
 					alertThreshold: 50,
 					icons: [{
 							"default": "chip"
 						}
 					]
 				}, {
-					sensor: "binary_sensor.sensor",
+					id: "binary_sensor.sensor",
 					name: "Hallway Sensor",
 					icons: [{
 							"state_off": "run",
@@ -75,7 +72,7 @@ modules: [{
 						}
 					]
 				}, {
-					sensor: "switch.reception_spot",
+					id: "switch.reception_spot",
 					icons: [{
 							"state_off": "lightbulb-outline",
 							"state_on": "lightbulb-on-outline"
