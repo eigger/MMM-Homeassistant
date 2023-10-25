@@ -144,11 +144,10 @@ Module.register("MMM-Homeassistant", {
 
     setIconCell: function(cell, value, icons) {
         if (!this.config.displaySymbol) return;
-        console.log(icons);
-        let iconName = icons.default;
-        console.log(iconName);
-        if (icons[value] !== undefined) {
-            iconName = icons[value];
+        let iconName = icons.find(item => 'default' in item)?.default;
+        const foundItem = icons.find(item => value in item);
+        if (foundItem) {
+            iconName = foundItem[keyToCheck];
         }
         if (iconName) {
             const iconElement = document.createElement("i");
