@@ -144,12 +144,12 @@ Module.register("MMM-Homeassistant", {
 
     setIconCell: function(cell, value, icons) {
         if (!this.config.displaySymbol) return;
+        console.log(icons);
         let iconName = icons.default;
         console.log(iconName);
         if (icons[value] !== undefined) {
             iconName = icons[value];
         }
-        console.log(iconName);
         if (iconName) {
             const iconElement = document.createElement("i");
             iconElement.className = "fa fa-" + iconName;
