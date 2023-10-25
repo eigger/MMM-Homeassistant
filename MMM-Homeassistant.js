@@ -144,7 +144,8 @@ Module.register("MMM-Homeassistant", {
 
     setIconCell: function(cell, value, icons) {
         if (!this.config.displaySymbol) return;
-    
+        console.log("ICON");
+        console.log(icons);
         let iconName = icons["default"];
         if (icons[value] !== undefined) {
             iconName = icons[value];
