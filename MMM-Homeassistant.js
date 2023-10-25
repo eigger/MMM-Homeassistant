@@ -53,7 +53,7 @@ Module.register("MMM-Homeassistant", {
         const tableElement = document.createElement("table");
         for (const entity of this.config.entities) {
             if (dataArray[entity.id] === undefined) continue;
-            const icons = entity.icons[0];
+            const icons = entity.icons;
             const value = this.getValue(dataArray[entity.id], entity);
             const name = this.getName(dataArray[entity.id], entity);
             const unit = this.getUnit(dataArray[entity.id], entity);
@@ -145,16 +145,9 @@ Module.register("MMM-Homeassistant", {
     setIconCell: function(cell, value, icons) {
         if (!this.config.displaySymbol || typeof icons !== "object") return;
     
-        const iconStates = {
-            "on": "state_on",
-            "off": "state_off",
-            "open": "state_open",
-            "closed": "state_closed"
-        };
-    
-        let iconName = icons.default;
-        if (iconStates[value] && icons[iconStates[value]]) {
-            iconName = icons[iconStates[value]];
+        let iconName = icons["default"];
+        if (icons[value] !== undefined) {
+            iconName = icons[value];
         }
     
         if (iconName) {
