@@ -150,8 +150,8 @@ Module.register("MMM-Homeassistant", {
             iconName = foundItem[keyToCheck];
         }
         if (iconName) {
-            const iconElement = document.createElement("i");
-            iconElement.className = "fa fa-" + iconName;
+            const iconElement = document.createElement("span");
+            iconElement.className = "mdi mdi-" + iconName;
             cell.appendChild(iconElement);
         }
     },
