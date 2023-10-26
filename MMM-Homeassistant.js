@@ -17,7 +17,7 @@ Module.register("MMM-Homeassistant", {
     getStyles: function() {
         return [
             "MMM-Homeassistant.css",
-            "https://fonts.googleapis.com/icon?family=Material+Icons"
+            "https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css"
         ];
     },
 
