@@ -117,6 +117,8 @@ Module.register("MMM-Homeassistant", {
         // Value
         const valueCell = newrow.insertCell(2);
         valueCell.className = "value";
+        if isinstance(value, float):
+            value = round(value, 2)
         valueCell.appendChild(document.createTextNode(value));
     
         // Unit
