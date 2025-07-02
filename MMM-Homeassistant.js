@@ -117,9 +117,6 @@ Module.register("MMM-Homeassistant", {
         // Value
         const valueCell = newrow.insertCell(2);
         valueCell.className = "value";
-        if (typeof value === 'number' && !Number.isInteger(value)) {
-            value = parseFloat(value.toFixed(2));
-        }
         valueCell.appendChild(document.createTextNode(value));
     
         // Unit
